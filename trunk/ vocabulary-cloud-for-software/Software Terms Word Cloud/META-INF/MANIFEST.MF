@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SoftwareTermsTagCloud
+Bundle-SymbolicName: SoftwareTermsTagCloud; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: SoftwareTermsTagCloud.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.eclipse.core.resources,
+ org.eclipse.jdt.core,
+ org.eclipse.jdt.internal.core,
+ org.eclipse.jface.text
