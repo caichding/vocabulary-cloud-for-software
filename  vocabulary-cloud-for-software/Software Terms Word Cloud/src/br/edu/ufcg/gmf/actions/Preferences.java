@@ -104,7 +104,7 @@ public class Preferences extends javax.swing.JFrame {
         generateWordCloudButton.setText("Gerar Word Cloud");
         generateWordCloudButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+            	generateWordCloudActionPerformed(evt);
             }
         });
 
@@ -168,7 +168,7 @@ public class Preferences extends javax.swing.JFrame {
         pack();
     }// </editor-fold>
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
+    private void generateWordCloudActionPerformed(java.awt.event.ActionEvent evt) {
         TermsCloudGenerator.setIncludeProject(projectCheckBox.isSelected());
         TermsCloudGenerator.setIncludePackagesFolders(packagesFoldersCheckBox.isSelected());
         TermsCloudGenerator.setIncludePackages(packagesCheckBox.isSelected());
