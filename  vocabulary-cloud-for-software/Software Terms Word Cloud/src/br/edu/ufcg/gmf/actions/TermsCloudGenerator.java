@@ -1,5 +1,6 @@
 package br.edu.ufcg.gmf.actions;
 
+import java.io.IOException;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
@@ -25,14 +26,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.jface.dialogs.MessageDialog;
 
-/**
- * Our sample action implements workbench action delegate.
- * The action proxy will be created by the workbench and
- * shown in the UI. When the user tries to use the action,
- * this delegate will be created and execution will be 
- * delegated to it.
- * @see IWorkbenchWindowActionDelegate
- */
 @SuppressWarnings("restriction")
 public class TermsCloudGenerator implements IWorkbenchWindowActionDelegate, IObjectActionDelegate {
 	private IWorkbenchWindow window;
@@ -42,32 +35,29 @@ public class TermsCloudGenerator implements IWorkbenchWindowActionDelegate, IObj
 	private String wordCloudString;
 	private static boolean includeProject, includePackagesFolders, includePackages, includeClass, includeSuperClass, includeInterfaces, includeMethods, includeParameters;
 
-	/**
-	 * The constructor.
-	 */
 	public TermsCloudGenerator() {
 	}
 
-	/**
-	 * The action has been activated. The argument of the
-	 * method represents the 'real' action sitting
-	 * in the workbench UI.
-	 * @see IWorkbenchWindowActionDelegate#run
-	 */
 	public void run(IAction action) {
 		wordCloudString = "";
+		wordCloudMap.clear();
 		
 		try {
 			identifyUserSelectionType();
-			requestUserPreferences();
-			while (!(Preferences.getUserPreferencesReceived())) { } // Wait ...
-			loadWordsToMap();
-			loadMapToWCString();
-			showWCString();
-		} catch (CoreException Error) {
+			if (userSelectionType != null) {
+				requestUserPreferences();
+				while (!(Preferences.getUserPreferencesReceived())) { } // Wait ...
+				loadWordsToMap();
+				loadMapToWCString();
+				showWCImageInBrowser();
+			}
+		} catch (IOException Error) {
+			openMessageDialog("You probably do not have internet connection. It's necessary.");
+			//Error.printStackTrace();
+		} catch (Exception Error) {
 			openMessageDialog("Sorry! An exception occurred, could not generate the Word Cloud.");
 			//Error.printStackTrace();
-		}
+		} 
 	}
 	
 	private void requestUserPreferences() {
@@ -102,10 +92,10 @@ public class TermsCloudGenerator implements IWorkbenchWindowActionDelegate, IObj
 		} 
 	}
 	
-	private void showWCString() {
+	private void showWCImageInBrowser() throws IOException {
 		if (!wordCloudString.isEmpty()) {
-			System.out.println(wordCloudString);
-			openMessageDialog("Tag Cloud generated successfully!");
+			WordCloudImageRetrieval.run(wordCloudString);
+			//openMessageDialog("Tag Cloud generated successfully!");
 		}
 	}
 	
@@ -145,7 +135,7 @@ public class TermsCloudGenerator implements IWorkbenchWindowActionDelegate, IObj
 	
 	private void loadJavaProjectInformations(IJavaProject project) throws JavaModelException {
 		if (includeProject) {
-			addInWCMap(project.getElementName(), 5);
+			addInWCMap(project.getElementName(), PackageExplorerLevels.I_JAVA_PROJECT.ordinal());
 		} for (IPackageFragmentRoot pfr: project.getPackageFragmentRoots()) {
 			if (!(pfr instanceof JarPackageFragmentRoot)) {
 				loadPackageFragmentRootInformations(pfr);
@@ -155,7 +145,7 @@ public class TermsCloudGenerator implements IWorkbenchWindowActionDelegate, IObj
 	
 	private void loadPackageFragmentRootInformations(IPackageFragmentRoot packageFragmentRoot) throws JavaModelException {
 		if (includePackagesFolders) {
-			addInWCMap(packageFragmentRoot.getElementName(), 4);
+			addInWCMap(packageFragmentRoot.getElementName(), PackageExplorerLevels.I_PACKAGE_FRAGMENT_ROOT.ordinal());
 		} for (IJavaElement javaElement : packageFragmentRoot.getChildren()) {
 			if (javaElement instanceof IPackageFragment) {
 				loadPackageFragmentInformations((IPackageFragment) javaElement);
@@ -165,7 +155,7 @@ public class TermsCloudGenerator implements IWorkbenchWindowActionDelegate, IObj
 	
 	private void loadPackageFragmentInformations(IPackageFragment pack) throws JavaModelException {
 		if (includePackages) {
-			addInWCMap(pack.getElementName(), 3);	
+			addInWCMap(pack.getElementName(), PackageExplorerLevels.I_PACKAGE_FRAGMENT.ordinal());	
 		} for (ICompilationUnit compilation : pack.getCompilationUnits()) {
 			for (IType type : compilation.getTypes()) {
 				if (type instanceof SourceType) {
@@ -176,8 +166,8 @@ public class TermsCloudGenerator implements IWorkbenchWindowActionDelegate, IObj
 		}
 	}
 	
-	private void loadCompilationUnitInformations(ICompilationUnit classe) throws JavaModelException {
-		for (IType type : classe.getTypes()) {
+	private void loadCompilationUnitInformations(ICompilationUnit clasS) throws JavaModelException {
+		for (IType type : clasS.getTypes()) {
 			if (type instanceof SourceType) {
 				SourceType sourceType = (SourceType) type;
 				loadSourceTypeInformations(sourceType);
@@ -187,7 +177,7 @@ public class TermsCloudGenerator implements IWorkbenchWindowActionDelegate, IObj
 	
 	private void loadSourceTypeInformations(SourceType sourceTypeClass) throws JavaModelException {
 		if (includeClass) {
-			addInWCMap(sourceTypeClass.getElementName(), 2);
+			addInWCMap(sourceTypeClass.getElementName(), PackageExplorerLevels.SOURCE_TYPE.ordinal());
 		} if (includeSuperClass && sourceTypeClass.getSuperclassName() != null) {
 			addInWCMap(sourceTypeClass.getSuperclassName());
 		} if (includeInterfaces) {
@@ -201,7 +191,7 @@ public class TermsCloudGenerator implements IWorkbenchWindowActionDelegate, IObj
 	
 	private void loadSourceMethodsInformations(IMethod method) throws JavaModelException {
 		if (includeMethods) {
-			addInWCMap(method.getElementName());
+			addInWCMap(method.getElementName(), PackageExplorerLevels.SOURCE_METHOD.ordinal());
 		} if (includeParameters) {
 			for (String parameter : method.getParameterNames()) {
 				addInWCMap(parameter);
@@ -283,30 +273,13 @@ public class TermsCloudGenerator implements IWorkbenchWindowActionDelegate, IObj
 				message);
 	}
 
-	/**
-	 * Selection in the workbench has been changed. We 
-	 * can change the state of the 'real' action here
-	 * if we want, but this can only happen after 
-	 * the delegate has been created.
-	 * @see IWorkbenchWindowActionDelegate#selectionChanged
-	 */
 	public void selectionChanged(IAction action, ISelection selection) {
 		this.userSelection = selection;
 	}
 
-	/**
-	 * We can use this method to dispose of any system
-	 * resources we previously allocated.
-	 * @see IWorkbenchWindowActionDelegate#dispose
-	 */
 	public void dispose() {
 	}
 
-	/**
-	 * We will cache window object in order to
-	 * be able to provide parent shell for the message dialog.
-	 * @see IWorkbenchWindowActionDelegate#init
-	 */
 	public void init(IWorkbenchWindow window) {
 		this.window = window;
 	}
