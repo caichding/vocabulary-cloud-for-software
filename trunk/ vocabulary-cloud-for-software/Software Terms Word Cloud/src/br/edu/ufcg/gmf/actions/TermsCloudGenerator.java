@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -17,6 +20,7 @@ import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreeSelection;
@@ -24,7 +28,8 @@ import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.eclipse.jface.dialogs.MessageDialog;
+
+import br.edu.ufcg.gmf.imageRetrieval.WordCloudViewer;
 
 @SuppressWarnings("restriction")
 public class TermsCloudGenerator implements IWorkbenchWindowActionDelegate, IObjectActionDelegate {
@@ -94,7 +99,17 @@ public class TermsCloudGenerator implements IWorkbenchWindowActionDelegate, IObj
 	
 	private void showWCImageInBrowser() throws IOException {
 		if (!wordCloudString.isEmpty()) {
-			WordCloudImageRetrieval.run(wordCloudString);
+			wordCloudString = wordCloudString.trim();
+//			WordCloudImageRetrieval.run(wordCloudString);
+			
+			JFrame frame = new JFrame("WordCloudView");
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			
+			JPanel graphView = WordCloudViewer.run(wordCloudString);
+			frame.setContentPane(graphView);
+			
+			frame.pack();
+			frame.setVisible(true);
 			//openMessageDialog("Tag Cloud generated successfully!");
 		}
 	}
