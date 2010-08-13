@@ -1,4 +1,4 @@
-package br.edu.ufcg.gmf.actions;
+package br.edu.ufcg.gmf.imageRetrieval;
 
 import java.awt.Desktop;
 import java.io.BufferedReader;
@@ -11,6 +11,8 @@ import java.io.PrintStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+
+import br.edu.ufcg.gmf.util.ClientHttpRequest;
 
 public class WordCloudImageRetrieval {
 

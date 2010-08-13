@@ -1,4 +1,4 @@
-package br.edu.ufcg.gmf.actions;
+package br.edu.ufcg.gmf.util;
 
 import java.net.URLConnection;
 import java.net.URL;
