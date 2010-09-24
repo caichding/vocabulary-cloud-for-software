@@ -47,6 +47,7 @@ public class Terms2TreeConverter {
 		}
 	}
 	
+	// add as binary tree
 	public Tree convert() {
 		
 		// Sorting the terms according to their frequency
@@ -73,6 +74,7 @@ public class Terms2TreeConverter {
 		return aTree;
 	}
 	
+	// add as n-ary tree, where the sum of children's frequencies is up to parent's frequency
 	public Tree convert2() {
 		
 		// Sorting the terms according to their frequency
