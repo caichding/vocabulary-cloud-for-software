@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Software_Terms_Word_Cloud
+Bundle-SymbolicName: Software_Terms_Word_Cloud
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: software_terms_word_cloud.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
